@@ -1,12 +1,18 @@
 spring:
+  config:
+    import:
+      - nacos:shared-seata.yaml # 指定要从Nacos导入的dataId
+      - nacos:shared-mq.yaml # 指定要从Nacos导入的dataId
+
   datasource:
-    url: jdbc:mysql://localhost:3306/your_database_name?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/permission ?useSSL=false&serverTimezone=UTC
     username: root
     password: 284100
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   application:
     name: permission-service # 您的微服务名称
+
   main:
     allow-bean-definition-overriding: true # 允许Bean定义覆盖，某些情况下ShardingSphere会生成自己的DataSource Bean
   cloud:
@@ -14,8 +20,6 @@ spring:
       server-addr: 192.168.91.135 # nacos地址
       config:
         file-extension: yaml # 文件后缀名
-        shared-configs: # 共享配置
-          - dataId: shared-seata.yaml # 共享seata配置
 
 server:
   port: 8081

@@ -1,7 +1,12 @@
 # Spring 框架相关配置（非ShardingSphere核心配置）
 spring:
+  config:
+    import:
+      - nacos:shared-seata.yaml # 指定要从Nacos导入的dataId
+      - nacos:shared-mq.yaml # 指定要从Nacos导入的dataId
+
   application:
-    name: user-service # 您的微服务名称
+    name: user-service # 微服务名称
   main:
     allow-bean-definition-overriding: true # 允许Bean定义覆盖，某些情况下ShardingSphere会生成自己的DataSource Bean
   cloud:
@@ -9,8 +14,7 @@ spring:
       server-addr: 192.168.91.135 # nacos地址
       config:
         file-extension: yaml # 文件后缀名
-        shared-configs: # 共享配置
-          - dataId: shared-seata.yaml # 共享seata配置
+
 
 # ShardingSphere 配置
 shardingsphere:

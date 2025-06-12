@@ -2,12 +2,12 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile name="Annotation profile for logging-service" enabled="true">
+      <profile name="Annotation profile for user-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$PROJECT_DIR$/../../java-web/apache-maven-3.9.9/mvn_repo/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+          <entry name="$PROJECT_DIR$/../../java-web/apache-maven-3.9.9/mvn_repo/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
         <module name="permission-service" />
         <module name="logging-service" />
