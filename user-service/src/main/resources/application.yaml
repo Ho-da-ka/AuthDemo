@@ -1,0 +1,65 @@
+# Spring 框架相关配置（非ShardingSphere核心配置）
+spring:
+  application:
+    name: user-service # 您的微服务名称
+  main:
+    allow-bean-definition-overriding: true # 允许Bean定义覆盖，某些情况下ShardingSphere会生成自己的DataSource Bean
+  cloud:
+    nacos:
+      server-addr: 192.168.91.135 # nacos地址
+      config:
+        file-extension: yaml # 文件后缀名
+        shared-configs: # 共享配置
+          - dataId: shared-seata.yaml # 共享seata配置
+
+# ShardingSphere 配置
+shardingsphere:
+  datasource:
+    names: ds0,ds1 # ds0 和 ds1 是逻辑数据源名称，对应下面的配置
+    ds0:
+      type: com.zaxxer.hikari.HikariDataSource
+      jdbc-url: jdbc:mysql://localhost:3306/user_db_0?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8 # user_db_0 数据库连接URL
+      username: root
+      password: 284100
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    ds1:
+      type: com.zaxxer.hikari.HikariDataSource
+      jdbc-url: jdbc:mysql://localhost:3306/user_db_1?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8 # user_db_1 数据库连接URL
+      username: root
+      password: 284100
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sharding:
+    tables:
+      users: # 逻辑表名，您的业务代码中将操作这个逻辑表
+        actualDataNodes: ds${0..1}.users_${0..1} # 实际数据节点配置，表示users逻辑表会路由到ds0或ds1，并对应users_0或users_1表
+        # 例如：ds0.users_0, ds0.users_1, ds1.users_0, ds1.users_1
+        tableStrategy: # 表分片策略
+          standard:
+            shardingColumn: user_id # 用于分片的列名
+            shardingAlgorithmName: users_table_inline # 引用下面的分片算法名称
+        databaseStrategy: # 库分片策略
+          standard:
+            shardingColumn: user_id # 用于分片的列名
+            shardingAlgorithmName: users_database_inline # 引用下面的分片算法名称
+
+    # 定义分片算法
+    shardingAlgorithms:
+      users_database_inline: # 数据库分片算法
+        type: INLINE # 内联表达式分片算法
+        props:
+          # ${sharding_column_name} % 2，表示 user_id % 2 = 0 路由到 ds0，user_id % 2 = 1 路由到 ds1
+          algorithm-expression: ds$->{user_id % 2}
+      users_table_inline: # 表分片算法
+        type: INLINE # 内联表达式分片算法
+        props:
+          # ${sharding_column_name} % 2，表示 user_id % 2 = 0 路由到 users_0，user_id % 2 = 1 路由到 users_1
+          algorithm-expression: users_$->{user_id % 2}
+
+  # ShardingSphere 属性配置（可选，根据需要开启）
+  props:
+  show-sql: true # 是否在控制台打印解析后的SQL和路由结果，便于调试
+  # executor-size: 16 # 执行器线程池大小
+  # max-allow-data-nodes-for-distribute-columns: 1000 # 允许的最大分片数量
+server:
+  port: 8082

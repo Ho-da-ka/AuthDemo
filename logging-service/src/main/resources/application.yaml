@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/your_database_name?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 284100
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: logging-service
+  main:
+    allow-bean-definition-overriding: true # 允许Bean定义覆盖，某些情况下ShardingSphere会生成自己的DataSource Bean
+  cloud:
+    nacos:
+      server-addr: 192.168.91.135 # nacos地址
+      config:
+        file-extension: yaml # 文件后缀名
+        shared-configs: # 共享配置
+          - dataId: shared-seata.yaml # 共享seata配置
+
+server:
+  port: 8080
