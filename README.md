@@ -43,7 +43,7 @@
   * **配置中心**：Nacos 
   * **API文档**：Swagger
 
-## 项目结构（示例）
+## 项目结构
 
 ```
 ├── user-service          # 用户服务
@@ -52,7 +52,7 @@
 ├── permission-service    # 权限服务
 │   ├── src
 │   └── pom.xml
-├── log-service           # 日志服务（可选，也可集成到其他服务）
+├── logging-service           # 日志服务（可选，也可集成到其他服务）
 │   ├── src
 │   └── pom.xml
 ├── common                # 公共模块（DTO、RPC接口定义等）

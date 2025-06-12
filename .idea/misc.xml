@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="717faae5-0f84-46ff-9610-2b21ad7fc091" />
-  </component>
   <component name="MavenRunner">
     <option name="jreName" value="17" />
   </component>
