@@ -1,9 +1,12 @@
 package com.shuzi.userservice;
 
+
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+@MapperScan("com.shuzi.userservice.mapper")
 public class UserServiceApplication {
 
     public static void main(String[] args) {
