@@ -16,50 +16,11 @@ spring:
         import-check:
           enabled: false
 
-  # ShardingSphere 配置 (Temporarily commented out for troubleshooting)
-  shardingsphere:
-    datasource:
-      names: ds0,ds1
-      ds0:
-        type: com.zaxxer.hikari.HikariDataSource
-        jdbc-url: jdbc:mysql://localhost:3306/user_db_0?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
-        username: root
-        password: 284100
-        driver-class-name: com.mysql.cj.jdbc.Driver
-      ds1:
-        type: com.zaxxer.hikari.HikariDataSource
-        jdbc-url: jdbc:mysql://localhost:3306/user_db_1?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
-        username: root
-        password: 284100
-        driver-class-name: com.mysql.cj.jdbc.Driver
-
-    sharding:
-      tables:
-        users:
-          actualDataNodes: ds${0..1}.users_${0..1}
-          tableStrategy:
-            standard:
-              shardingColumn: user_id
-              shardingAlgorithmName: users_table_inline
-          databaseStrategy:
-            standard:
-              shardingColumn: user_id
-              shardingAlgorithmName: users_database_inline
-
-      # 定义分片算法
-      shardingAlgorithms:
-        users_database_inline:
-          type: INLINE
-          props:
-            algorithm-expression: ds$->{user_id % 2}
-        users_table_inline:
-          type: INLINE
-          props:
-            algorithm-expression: users_$->{user_id % 2}
-
-    # ShardingSphere 属性配置
-    props:
-      show-sql: true
+# 由于 ShardingSphere 5.3.x 移除 Spring Boot Starter，这里改为使用 ShardingSphereDriver。
+# 详细规则放在 `classpath:sharding.yaml`，见同级目录。
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:sharding.yaml
 
 server:
   port: 8082

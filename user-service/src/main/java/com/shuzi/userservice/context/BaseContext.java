@@ -2,18 +2,28 @@ package com.shuzi.userservice.context;
 
 public class BaseContext {
 
-    public static ThreadLocal<Long> threadLocal = new ThreadLocal<>();
+    public static ThreadLocal<Long> userId = new ThreadLocal<>();
+    public static ThreadLocal<String> userIp = new ThreadLocal<>();
 
     public static void setCurrentId(Long id) {
-        threadLocal.set(id);
+        userId.set(id);
+    }
+    public static void setCurrentIp(String ip) {
+        userIp.set(ip);
     }
 
     public static Long getCurrentId() {
-        return threadLocal.get();
+        return userId.get();
+    }
+    public static String getCurrentIp() {
+        return userIp.get();
     }
 
     public static void removeCurrentId() {
-        threadLocal.remove();
+        userId.remove();
+    }
+    public static void removeCurrentIp() {
+        userIp.remove();
     }
 
 }

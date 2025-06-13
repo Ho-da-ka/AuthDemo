@@ -1,6 +1,8 @@
 package com.shuzi.userservice.domain.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,8 +12,9 @@ import java.time.LocalDateTime;
  * 用户表
  */
 @Data
-public class User implements Serializable {
-    @TableId
+@TableName("users")
+public class Users implements Serializable {
+    @TableId(value = "user_id", type = IdType.AUTO)
     private Long userId;
 
     private String username;

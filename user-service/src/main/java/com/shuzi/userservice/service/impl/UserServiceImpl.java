@@ -1,10 +1,14 @@
 package com.shuzi.userservice.service.impl;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.extra.ssh.JschUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.shuzi.userservice.context.BaseContext;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
-import com.shuzi.userservice.domain.po.User;
+import com.shuzi.userservice.domain.po.OperationLog;
+import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.domain.vo.UserLoginVO;
 import com.shuzi.userservice.domain.vo.UserVO;
 import com.shuzi.userservice.mapper.UserMapper;
@@ -12,11 +16,13 @@ import com.shuzi.userservice.service.IUserService;
 import com.shuzi.userservice.utils.JwtTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -25,9 +31,12 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements IUserService {
 
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+    private final RabbitTemplate rabbitTemplate;
+//    private final PermissionService permissionService;
 
     @Override
     public UserLoginVO login(LoginFormDTO loginDTO) {
@@ -35,11 +44,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
         // 2.根据用户名查询
-        User user = lambdaQuery().eq(User::getUsername, username).one();
+        Users user = lambdaQuery().eq(Users::getUsername, username).one();
         Assert.notNull(user, "用户名错误");
         // 3.校验密码
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("用户名或密码错误");
+            log.error("用户名或密码错误");
+            return null;
         }
         // 5.生成TOKEN
         String token = JwtTool.generateJwt(user.getUserId(), user.getUsername());
@@ -52,8 +62,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public UserLoginVO register(LoginFormDTO loginFormDTO) {
-        return null;
+    public UserLoginVO register(Users user) {
+        // 1.检查是否已存在
+        Users existUser = lambdaQuery().eq(Users::getUsername, user.getUsername()).one();
+        if (existUser != null) {
+            log.info("用户已存在");
+            return login(BeanUtil.copyProperties(existUser, LoginFormDTO.class));
+        }
+        // 2.保存用户
+        LoginFormDTO loginFormDTO = BeanUtil.copyProperties(user, LoginFormDTO.class);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setGmtCreate(LocalDateTime.now(ZoneOffset.UTC));
+        userMapper.insert(user);
+        log.info("用户id:{}", user.getUserId());
+        //  3.绑定角色
+//        permissionService.bindDefaultRole(user.getUserId());
+        // 4.发送日志消息至MQ
+        user.setPassword("*********");
+        OperationLog operationLog = new OperationLog();
+        operationLog.setAction("用户注册");
+        operationLog.setIp(BaseContext.getCurrentIp());
+        operationLog.setDetail(JSON.toJSONString(user));
+        rabbitTemplate.convertAndSend("log.topic",operationLog);
+        return login(loginFormDTO);
     }
 
     @Override
