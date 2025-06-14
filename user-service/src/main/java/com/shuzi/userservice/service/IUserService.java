@@ -23,7 +23,7 @@ public interface IUserService extends IService<Users> {
 
     UserVO selectUser(String userid);
 
-    UserLoginVO updateUser(String userid);
+    boolean updateUser(String userid);
 
-    UserLoginVO resetPassword();
+    boolean resetPassword();
 }

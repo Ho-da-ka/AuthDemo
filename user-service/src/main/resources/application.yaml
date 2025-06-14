@@ -24,7 +24,9 @@ spring:
 
 server:
   port: 8082
-
+feign:
+  okhttp:
+    enabled: true # 开启OKHttp连接池支持
 #logging:
 #  level:
 #    org.springframework: DEBUG

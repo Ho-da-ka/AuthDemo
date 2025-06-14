@@ -1,5 +1,5 @@
 // 实体类（MyBatis Plus映射）
-package com.shuzi.loggingservice.domain.po;
+package com.shuzi.loggingservice.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

@@ -1,10 +1,10 @@
 package com.shuzi.userservice.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.extra.ssh.JschUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import com.shuzi.userservice.client.PermissionService;
 import com.shuzi.userservice.context.BaseContext;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
 import com.shuzi.userservice.domain.po.OperationLog;
@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final RabbitTemplate rabbitTemplate;
-//    private final PermissionService permissionService;
+    private final PermissionService permissionService;
 
     @Override
     public UserLoginVO login(LoginFormDTO loginDTO) {
@@ -61,7 +62,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         return vo;
     }
 
+    /**
+     * 注册
+     *
+     * @param user
+     * @return 登录VO
+     */
     @Override
+    @Transactional
     public UserLoginVO register(Users user) {
         // 1.检查是否已存在
         Users existUser = lambdaQuery().eq(Users::getUsername, user.getUsername()).one();
@@ -73,37 +81,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         LoginFormDTO loginFormDTO = BeanUtil.copyProperties(user, LoginFormDTO.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setGmtCreate(LocalDateTime.now(ZoneOffset.UTC));
-        userMapper.insert(user);
+        save(user);
         log.info("用户id:{}", user.getUserId());
         //  3.绑定角色
-//        permissionService.bindDefaultRole(user.getUserId());
+        permissionService.bindDefaultRole(user.getUserId());
         // 4.发送日志消息至MQ
         user.setPassword("*********");
         OperationLog operationLog = new OperationLog();
         operationLog.setAction("用户注册");
         operationLog.setIp(BaseContext.getCurrentIp());
         operationLog.setDetail(JSON.toJSONString(user));
-        rabbitTemplate.convertAndSend("log.topic",operationLog);
+        operationLog.setUserId(BaseContext.getCurrentId());
+        rabbitTemplate.convertAndSend("log.topic", operationLog);
         return login(loginFormDTO);
     }
 
+    /**
+     * 获取用户列表
+     *
+     * @param loginFormDTO
+     * @return
+     */
     @Override
     public List<UserVO> listUsers(LoginFormDTO loginFormDTO) {
         return List.of();
     }
 
+    /**
+     * 获取用户信息
+     *
+     * @param userid
+     * @return UserVO
+     */
     @Override
     public UserVO selectUser(String userid) {
         return null;
     }
 
+    /**
+     * 更新用户信息
+     *
+     * @param userid
+     * @return UserLoginVO
+     */
     @Override
-    public UserLoginVO updateUser(String userid) {
-        return null;
+    public boolean updateUser(String userid) {
+        return true;
     }
 
+    /**
+     * 重置密码
+     *
+     * @return UserLoginVO
+     */
     @Override
-    public UserLoginVO resetPassword() {
+    public boolean resetPassword() {
         return null;
     }
 

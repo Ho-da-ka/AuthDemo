@@ -3,6 +3,7 @@ package com.shuzi.userservice.config;
 
 import com.shuzi.userservice.interceptor.IPInterceptor;
 import com.shuzi.userservice.interceptor.JwtTokenUserInterceptor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +20,13 @@ import java.util.List;
  */
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-    @Autowired
-    private IPInterceptor ipInterceptor;
-    @Autowired
-    private JwtTokenUserInterceptor jwtTokenUserInterceptor;
+
+    private  final IPInterceptor ipInterceptor;
+
+    private final JwtTokenUserInterceptor jwtTokenUserInterceptor;
 
     /**
      * 注册自定义拦截器
