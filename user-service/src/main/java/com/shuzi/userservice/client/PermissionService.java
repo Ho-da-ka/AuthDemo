@@ -34,4 +34,8 @@ public interface PermissionService {
     /** 超管调用：降级用户为普通角色 */
     @PutMapping("/downgrade/{userId}")
     void downgradeToUser(@PathVariable("userId") Long userId);
+
+    /** 根据角色编码查询用户id列表 */
+    @GetMapping("/users/{roleCode}")
+    java.util.List<Long> listUserIdsByRole(@PathVariable("roleCode") String roleCode);
 }

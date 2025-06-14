@@ -21,7 +21,7 @@ public class OperationLogListener {
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(name = "log.queue"),
-            exchange = @Exchange(name = "log.direct", delayed = "true")
+            exchange = @Exchange(name = "log.direct")
     ))
     public void listenOperationLog(OperationLog operationLog) {
         operationLogMapper.insert(operationLog);

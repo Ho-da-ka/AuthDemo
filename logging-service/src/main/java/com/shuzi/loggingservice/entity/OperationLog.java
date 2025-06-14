@@ -24,4 +24,11 @@ public class OperationLog {
     
     private String detail;
 
+    /** 是否成功 */
+    private Boolean success;
+
+    /** 失败时的错误信息 */
+    @TableField("error_msg")
+    private String errorMsg;
+
 }

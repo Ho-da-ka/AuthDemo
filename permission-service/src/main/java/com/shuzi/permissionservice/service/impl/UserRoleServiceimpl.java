@@ -8,10 +8,13 @@ import com.shuzi.permissionservice.service.IUserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> implements IUserRoleService {
     private final RoleMapper roleMapper;
+    private final UserRoleMapper userRoleMapper;
 
     @Override
     public void bindDefaultRole(Long userId) {
@@ -49,5 +52,10 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
         lambdaUpdate()
                 .eq(UserRole::getUserId, userId)
                 .update(userRole);
+    }
+
+    @Override
+    public List<Long> listUserIdsByRole(String roleCode) {
+        return userRoleMapper.selectUserIdsByRoleCode(roleCode);
     }
 }

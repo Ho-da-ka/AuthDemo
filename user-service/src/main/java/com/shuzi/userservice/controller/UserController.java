@@ -1,7 +1,9 @@
 package com.shuzi.userservice.controller;
 
 
+import com.shuzi.userservice.result.PageResult;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
+import com.shuzi.userservice.domain.dto.PageQueryDTO;
 import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.domain.vo.UserLoginVO;
 import com.shuzi.userservice.domain.vo.UserVO;
@@ -13,8 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Api(tags = "用户相关接口")
 @RestController
@@ -28,11 +28,7 @@ public class UserController {
     @PostMapping("/login")
     public Result<UserLoginVO> login(@RequestBody @Validated LoginFormDTO loginFormDTO) {
         UserLoginVO login = userService.login(loginFormDTO);
-        if (login != null) {
-            return Result.success(login);
-        } else {
-            return Result.error("用户名或密码错误");
-        }
+        return Result.success(login);
     }
 
     @ApiOperation("用户注册接口")
@@ -44,9 +40,9 @@ public class UserController {
 
     @ApiOperation("分页用户列表接口")
     @GetMapping()
-    public Result<List<UserVO>> listUsers(@RequestBody @Validated LoginFormDTO loginFormDTO, HttpServletRequest request) {
-        List<UserVO> userVOS = userService.listUsers(loginFormDTO);
-        return Result.success(userVOS);
+    public Result<PageResult> listUsers(@RequestBody @Validated PageQueryDTO pageQueryDTO) {
+        PageResult pageResult = userService.listUsers(pageQueryDTO);
+        return Result.success(pageResult);
     }
 
     @ApiOperation("查询用户信息接口")
@@ -59,21 +55,14 @@ public class UserController {
     @ApiOperation("修改用户信息接口")
     @PutMapping("/{userid}")
     public Result updateUser(@PathVariable String userid) {
-        if (userService.updateUser(userid)) {
-            return Result.success();
-        } else {
-            return Result.error("修改用户信息失败,用户不存在或权限不够");
-        }
+        return Result.success();
+
     }
 
     @ApiOperation("密码重置接口")
     @PostMapping("/reset-password")
     public Result resetPassword() {
-        if (userService.resetPassword()) {
-            return Result.success();
-        } else {
-            return Result.error("修密码重置失败,用户不存在");
-        }
+        return Result.success();
     }
 
 }

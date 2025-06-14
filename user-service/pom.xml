@@ -30,6 +30,7 @@
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
         <lombok.version>1.18.30</lombok.version>
+        <mybatis-plus.version>3.5.6</mybatis-plus.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -113,17 +114,11 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
         </dependency>
-        <!-- MyBatis Plus (Spring Boot 3 适配版本) -->
+        <!-- MyBatis-Plus (starter 会自动引入 mybatis-plus-extension) -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>3.5.12</version>
-        </dependency>
-        <!-- SQlParser 支持，处理分页等插件所需 -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-jsqlparser</artifactId>
-            <version>3.5.12</version>
+            <version>${mybatis-plus.version}</version>
         </dependency>
         <!-- Hutool 工具类 -->
         <dependency>

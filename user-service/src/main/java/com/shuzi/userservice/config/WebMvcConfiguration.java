@@ -24,7 +24,7 @@ import java.util.List;
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
 
-    private  final IPInterceptor ipInterceptor;
+    private final IPInterceptor ipInterceptor;
 
     private final JwtTokenUserInterceptor jwtTokenUserInterceptor;
 
@@ -37,7 +37,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         log.info("开始注册自定义拦截器...");
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/users/login");
+                .excludePathPatterns("/users/login")
+                .excludePathPatterns("/users/register");
+
         registry.addInterceptor(ipInterceptor)
                 .addPathPatterns("/**");
     }
