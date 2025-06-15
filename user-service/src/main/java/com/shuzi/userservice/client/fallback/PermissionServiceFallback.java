@@ -26,7 +26,6 @@ public class PermissionServiceFallback implements FallbackFactory<PermissionServ
             @Override
             public void upgradeToAdmin(Long userId) {
                 log.error("远程调用PermissionService#upgradeToAdmin方法出现异常，参数：{}", userId, cause);
-
             }
 
             @Override

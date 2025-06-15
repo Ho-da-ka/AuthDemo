@@ -33,15 +33,16 @@ public class IPInterceptor implements HandlerInterceptor {
             //当前拦截到的不是动态方法，直接放行
             return true;
         }
-            IpUtils.getClientIP(request);
-            String ip = IpUtils.getClientIP(request);
-            log.info("当前用户ip：{}", ip);
-            BaseContext.setCurrentIp(ip);
-            //3、通过，放行
-            return true;
+        IpUtils.getClientIP(request);
+        String ip = IpUtils.getClientIP(request);
+        log.info("当前用户ip：{}", ip);
+        BaseContext.setCurrentIp(ip);
+        //3、通过，放行
+        return true;
     }
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         BaseContext.removeCurrentIp();
+        BaseContext.removeCurrentId();
     }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
 
 import com.shuzi.userservice.domain.dto.PageQueryDTO;
+import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.domain.vo.UserLoginVO;
 import com.shuzi.userservice.domain.vo.UserVO;
@@ -23,7 +24,7 @@ public interface IUserService extends IService<Users> {
 
     UserVO selectUser(String userid);
 
-    boolean updateUser(String userid);
+    void updateUser(String userid, UserDTO userDTO);
 
     boolean resetPassword();
 }

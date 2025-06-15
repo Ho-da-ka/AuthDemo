@@ -27,12 +27,18 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
     @Override
     public String getUserRoleCode(Long userId) {
         UserRole userRole = lambdaQuery().eq(UserRole::getUserId, userId).one();
+        if (userRole == null) {
+            return null;
+        }
         return roleMapper.selectById(userRole.getRoleId()).getRoleCode();
     }
 
     @Override
     public void upgradeToAdmin(Long userId) {
         UserRole userRole = lambdaQuery().eq(UserRole::getUserId, userId).one();
+        if (userRole == null) {
+            throw new RuntimeException("用户不存在");
+        }
         if (userRole.getRoleId() == 3) {
             return;
         }
@@ -45,6 +51,9 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
     @Override
     public void downgradeToUser(Long userId) {
         UserRole userRole = lambdaQuery().eq(UserRole::getUserId, userId).one();
+        if (userRole == null) {
+            throw new RuntimeException("用户不存在");
+        }
         if (userRole.getRoleId() == 2) {
             return;
         }

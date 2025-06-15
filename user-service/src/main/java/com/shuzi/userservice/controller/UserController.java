@@ -1,6 +1,7 @@
 package com.shuzi.userservice.controller;
 
 
+import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.result.PageResult;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
 import com.shuzi.userservice.domain.dto.PageQueryDTO;
@@ -54,7 +55,8 @@ public class UserController {
 
     @ApiOperation("修改用户信息接口")
     @PutMapping("/{userid}")
-    public Result updateUser(@PathVariable String userid) {
+    public Result updateUser(@PathVariable String userid, @RequestBody UserDTO userDTO) {
+        userService.updateUser(userid,userDTO);
         return Result.success();
 
     }

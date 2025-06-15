@@ -3,7 +3,6 @@ package com.shuzi.userservice.domain.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 @TableName("operation_logs")
