@@ -19,23 +19,39 @@ import org.springframework.web.bind.annotation.PutMapping;
 @FeignClient(name = "permission-service", path = "/Permission", fallback = PermissionServiceFallback.class)
 public interface PermissionService {
 
-    /** 绑定默认角色（普通用户） */
+    /**
+     * 绑定默认角色（普通用户）
+     */
     @PutMapping("/{userId}")
     void bindDefaultRole(@PathVariable("userId") Long userId);
 
-    /** 查询用户角色码（返回role_code） */
+    /**
+     * 查询用户角色码（返回role_code）
+     */
     @GetMapping("/{userId}")
     String getUserRoleCode(@PathVariable("userId") Long userId);
 
-    /** 超管调用：升级用户为管理员 */
+    /**
+     * 超管调用：升级用户为管理员
+     */
     @PutMapping("/upgrade/{userId}")
     void upgradeToAdmin(@PathVariable("userId") Long userId);
 
-    /** 超管调用：降级用户为普通角色 */
+    /**
+     * 超管调用：降级用户为普通角色
+     */
     @PutMapping("/downgrade/{userId}")
     void downgradeToUser(@PathVariable("userId") Long userId);
 
-    /** 根据角色编码查询用户id列表 */
+    /**
+     * 根据角色编码查询用户id列表
+     */
     @GetMapping("/users/{roleCode}")
     java.util.List<Long> listUserIdsByRole(@PathVariable("roleCode") String roleCode);
+
+    /**
+     * 绑定超级管理员角色
+     */
+    @PutMapping("/{userId}")
+    void bindSuperAdminRole(@PathVariable Long userId);
 }

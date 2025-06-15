@@ -122,7 +122,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         if (ROLE_SUPER_ADMIN.equals(currentRole)) {
             Page<Users> mpPage = new Page<>(pageNum, pageSize);
             IPage<UserVO> result = page(mpPage, new QueryWrapper<>())
-                    .convert(u -> BeanUtil.copyProperties(u, UserVO.class));
+                    .convert(u -> {
+                        UserVO vo = BeanUtil.copyProperties(u, UserVO.class);
+                        vo.setUserRole(permissionService.getUserRoleCode(u.getUserId()));
+                        return vo;
+                    });
             return new PageResult(result.getTotal(), result.getRecords());
         }
 
@@ -131,7 +135,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
             Users user = getById(currentUserId);
             List<UserVO> list = new ArrayList<>();
             if (user != null) {
-                list.add(BeanUtil.copyProperties(user, UserVO.class));
+                UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
+                vo.setUserRole(permissionService.getUserRoleCode(user.getUserId()));
+                list.add(vo);
             }
             return new PageResult(list.size(), list);
         }
@@ -145,7 +151,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         LambdaQueryWrapper<Users> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(Users::getUserId, userIds);
         IPage<UserVO> result = page(mpPage, wrapper)
-                .convert(u -> BeanUtil.copyProperties(u, UserVO.class));
+                .convert(u -> {
+                    UserVO vo = BeanUtil.copyProperties(u, UserVO.class);
+                    vo.setUserRole(permissionService.getUserRoleCode(u.getUserId()));
+                    return vo;
+                });
         return new PageResult(result.getTotal(), result.getRecords());
     }
 
@@ -171,7 +181,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         String targetUserRole = permissionService.getUserRoleCode(user.getUserId());
 
         if (ROLE_SUPER_ADMIN.equals(currentRole)) {
-            return BeanUtil.copyProperties(user, UserVO.class);
+            UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
+            vo.setUserRole(targetUserRole);
+            return vo;
         }
 
         if (ROLE_ADMIN.equals(currentRole)) {
@@ -179,14 +191,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
                     (ROLE_ADMIN.equals(targetUserRole) && !user.getUserId().equals(currentUserId))) {
                 throw new RuntimeException("权限不足");
             }
-            return BeanUtil.copyProperties(user, UserVO.class);
+            UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
+            vo.setUserRole(targetUserRole);
+            return vo;
         }
 
         if (ROLE_USER.equals(currentRole)) {
             if (!ROLE_USER.equals(targetUserRole) || !user.getUserId().equals(currentUserId)) {
                 throw new RuntimeException("权限不足");
             }
-            return BeanUtil.copyProperties(user, UserVO.class);
+            UserVO vo = BeanUtil.copyProperties(user, UserVO.class);
+            vo.setUserRole(targetUserRole);
+            return vo;
         }
 
         throw new RuntimeException("权限不足：未知角色");
@@ -201,6 +217,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
      */
     @Transactional
     @Override
+    @OpLog(value = "更新用户信息")
     public void updateUser(String userid, UserDTO userDTO) {
         // 输入校验
         if (!NumberUtils.isCreatable(userid)) {
@@ -216,10 +233,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         // 权限校验
         switch (currentRole) {
             case ROLE_SUPER_ADMIN -> {
-                if (userDTO.getUserRole().equals(ROLE_SUPER_ADMIN)) {
-                    throw new RuntimeException("不能修改超级管理员角色");
-                }
                 String newRole = userDTO.getUserRole();
+                if (newRole.equals(ROLE_SUPER_ADMIN)) {
+                    throw new RuntimeException("不能新增超级管理员");
+                }
                 if (newRole.equals(ROLE_ADMIN) && !targetRole.equals(ROLE_ADMIN)) {
                     permissionService.downgradeToUser(targetUserId);
                 } else if (newRole.equals(ROLE_USER) && !targetRole.equals(ROLE_USER)) {
@@ -260,6 +277,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
      *
      * @return UserLoginVO
      */
+    @OpLog(value = "重置密码")
     @Override
     @Transactional
     public boolean resetPassword() {

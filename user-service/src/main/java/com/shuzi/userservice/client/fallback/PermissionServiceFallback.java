@@ -38,6 +38,11 @@ public class PermissionServiceFallback implements FallbackFactory<PermissionServ
                 log.error("远程调用PermissionService#listUserIdsByRole方法出现异常，参数：{}", roleCode, cause);
                 return List.of();
             }
+
+            @Override
+            public void bindSuperAdminRole(Long userId) {
+                log.error("远程调用PermissionService#bindSuperAdminRole方法出现异常，参数：{}", userId, cause);
+            }
         };
     }
 }

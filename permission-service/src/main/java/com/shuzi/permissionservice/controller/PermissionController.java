@@ -1,5 +1,6 @@
 package com.shuzi.permissionservice.controller;
 
+import com.shuzi.permissionservice.entity.UserRole;
 import com.shuzi.permissionservice.service.IUserRoleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,5 +49,17 @@ public class PermissionController {
     java.util.List<Long> listUserIdsByRole(@PathVariable String roleCode) {
         return userRoleService.listUserIdsByRole(roleCode);
     }
+
+    /**
+     * 绑定超级管理员角色
+     */
+    @PutMapping("/{userId}")
+    void bindSuperAdminRole(@PathVariable Long userId) {
+        UserRole userRole = new UserRole();
+        userRole.setUserId(userId);
+        userRole.setRoleId(1);
+        userRoleService.save(userRole);
+    }
+
 
 }

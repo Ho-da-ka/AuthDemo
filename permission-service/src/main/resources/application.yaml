@@ -13,8 +13,6 @@ spring:
   application:
     name: permission-service # 您的微服务名称
 
-  main:
-    allow-bean-definition-overriding: true # 允许Bean定义覆盖，某些情况下ShardingSphere会生成自己的DataSource Bean
   cloud:
     nacos:
       server-addr: 192.168.91.135 # nacos地址
