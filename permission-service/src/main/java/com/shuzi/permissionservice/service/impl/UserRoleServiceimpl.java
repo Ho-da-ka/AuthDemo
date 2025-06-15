@@ -7,6 +7,7 @@ import com.shuzi.permissionservice.mapper.UserRoleMapper;
 import com.shuzi.permissionservice.service.IUserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,7 +17,13 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
     private final RoleMapper roleMapper;
     private final UserRoleMapper userRoleMapper;
 
+    /**
+     * 绑定用户默认角色
+     *
+     * @param userId
+     */
     @Override
+    @Transactional
     public void bindDefaultRole(Long userId) {
         UserRole userRole = new UserRole();
         userRole.setUserId(userId);
@@ -24,6 +31,12 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
         save(userRole);
     }
 
+    /**
+     * 获取用户角色
+     *
+     * @param userId
+     * @return
+     */
     @Override
     public String getUserRoleCode(Long userId) {
         UserRole userRole = lambdaQuery().eq(UserRole::getUserId, userId).one();
@@ -33,7 +46,13 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
         return roleMapper.selectById(userRole.getRoleId()).getRoleCode();
     }
 
+    /**
+     * 升级为管理员
+     *
+     * @param userId
+     */
     @Override
+    @Transactional
     public void upgradeToAdmin(Long userId) {
         UserRole userRole = lambdaQuery().eq(UserRole::getUserId, userId).one();
         if (userRole == null) {
@@ -48,7 +67,13 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
                 .update(userRole);
     }
 
+    /**
+     * 降级为普通用户
+     *
+     * @param userId
+     */
     @Override
+    @Transactional
     public void downgradeToUser(Long userId) {
         UserRole userRole = lambdaQuery().eq(UserRole::getUserId, userId).one();
         if (userRole == null) {
@@ -63,6 +88,12 @@ public class UserRoleServiceimpl extends ServiceImpl<UserRoleMapper, UserRole> i
                 .update(userRole);
     }
 
+    /**
+     * 根据用户编码批量获取用户角色
+     *
+     * @param roleCode
+     * @return List<Long>
+     */
     @Override
     public List<Long> listUserIdsByRole(String roleCode) {
         return userRoleMapper.selectUserIdsByRoleCode(roleCode);

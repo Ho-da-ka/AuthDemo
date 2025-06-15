@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.shuzi.userservice.client.PermissionService;
 import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.service.IUserService;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -22,6 +23,7 @@ public class SuperAdminInitializer implements ApplicationRunner {
     private final PermissionService permissionService;
 
     @Override
+    @GlobalTransactional
     public void run(ApplicationArguments args) {
         String superAdminName = "super_admin";
         Users exist = userService.getOne(

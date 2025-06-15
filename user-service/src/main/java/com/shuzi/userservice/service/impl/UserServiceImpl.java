@@ -22,6 +22,7 @@ import com.shuzi.userservice.result.PageResult;
 import com.shuzi.userservice.service.IUserService;
 import com.shuzi.userservice.utils.JwtTool;
 import io.micrometer.common.util.StringUtils;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -51,6 +52,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
     private final UserMapper userMapper;
     private final PermissionService permissionService;
 
+    /**
+     * 用户登录
+     *
+     * @param loginDTO
+     * @return 登录信息
+     */
     @OpLog("用户登录")
     @Override
     public UserLoginVO login(LoginFormDTO loginDTO) {
@@ -83,7 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
      */
     @OpLog("用户注册")
     @Override
-    @Transactional
+    @GlobalTransactional
     public UserLoginVO register(Users user) {
         // 1.检查是否已存在
         Users existUser = lambdaQuery().eq(Users::getUsername, user.getUsername()).one();
@@ -165,8 +172,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
      * @param userid
      * @return UserVO
      */
-
-
     @Override
     @OpLog(value = "获取用户信息")
     public UserVO selectUser(String userid) {
@@ -215,7 +220,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
      * @param userid
      * @param userDTO
      */
-    @Transactional
+    @GlobalTransactional
     @Override
     @OpLog(value = "更新用户信息")
     public void updateUser(String userid, UserDTO userDTO) {
