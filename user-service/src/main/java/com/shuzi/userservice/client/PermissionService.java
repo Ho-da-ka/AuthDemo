@@ -52,6 +52,6 @@ public interface PermissionService {
     /**
      * 绑定超级管理员角色
      */
-    @PutMapping("/{userId}")
+    @PutMapping("/super_admin/{userId}")
     void bindSuperAdminRole(@PathVariable Long userId);
 }

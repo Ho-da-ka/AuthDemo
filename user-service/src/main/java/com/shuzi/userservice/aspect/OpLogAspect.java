@@ -33,13 +33,13 @@ public class OpLogAspect {
         try {
             Object result = pjp.proceed();
             // 记录入参详情
-            operationLog.setDetail("操作成功：" + JSON.toJSONString(pjp.getArgs()));
+            operationLog.setDetail("操作成功：请求参数=" + JSON.toJSONString(pjp.getArgs()) + ", 返回结果=" + JSON.toJSONString(result));
             // 发送消息
             rabbitTemplate.convertAndSend("log.direct", "", operationLog);
             return result;
         } catch (Throwable ex) {
             // 记录入参详情
-            operationLog.setDetail("操作失败：" + ex.getMessage() + JSON.toJSONString(pjp.getArgs()));
+            operationLog.setDetail("操作失败：" + ex.getMessage() + " 请求参数=" + JSON.toJSONString(pjp.getArgs()));
             rabbitTemplate.convertAndSend("log.direct", "", operationLog);
             // 继续抛出异常保持原有逻辑
             throw ex;

@@ -44,7 +44,9 @@ rules:
       type: SNOWFLAKE
       props:
         worker-id: 123
-
+- !TRANSACTION
+  defaultType: BASE
+  providerType: Seata
 props:
   sql-show: true
 

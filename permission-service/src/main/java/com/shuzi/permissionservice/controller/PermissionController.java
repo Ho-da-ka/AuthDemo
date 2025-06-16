@@ -80,7 +80,7 @@ public class PermissionController {
      *               默认密码 123456
      */
     @Transactional
-    @PutMapping("/{userId}")
+    @PutMapping("/super_admin/{userId}")
     void bindSuperAdminRole(@PathVariable Long userId) {
         UserRole userRole = new UserRole();
         userRole.setUserId(userId);

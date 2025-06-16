@@ -2,6 +2,7 @@ package com.shuzi.permissionservice.entity; // 请根据您的权限服务包结
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.IdType;
 import lombok.Data;
 
 /**
@@ -15,7 +16,7 @@ public class UserRole {
     /**
      * 主键ID
      */
-    @TableId // MyBatis-Plus 注解，标记为主键，默认使用数据库自增
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

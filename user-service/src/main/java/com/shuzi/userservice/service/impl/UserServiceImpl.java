@@ -242,10 +242,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
                 if (newRole.equals(ROLE_SUPER_ADMIN)) {
                     throw new RuntimeException("不能新增超级管理员");
                 }
-                if (newRole.equals(ROLE_ADMIN) && !targetRole.equals(ROLE_ADMIN)) {
-                    permissionService.downgradeToUser(targetUserId);
-                } else if (newRole.equals(ROLE_USER) && !targetRole.equals(ROLE_USER)) {
+                if (ROLE_ADMIN.equals(newRole) && !ROLE_ADMIN.equals(targetRole)) {
+                    // 升级普通用户 → 管理员
                     permissionService.upgradeToAdmin(targetUserId);
+                } else if (ROLE_USER.equals(newRole) && !ROLE_USER.equals(targetRole)) {
+                    // 降级管理员 → 普通用户
+                    permissionService.downgradeToUser(targetUserId);
                 }
             }
             case ROLE_ADMIN -> {
@@ -265,15 +267,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         }
 
         // 数据更新
-        Users user = BeanUtil.copyProperties(userDTO, Users.class);
-        user.setUserId(targetUserId);
-
-        lambdaUpdate()
-                .set(StringUtils.isNotBlank(userDTO.getUsername()), Users::getUsername, userDTO.getUsername())
-                .set(StringUtils.isNotBlank(userDTO.getPhone()), Users::getPhone, userDTO.getPhone())
-                .set(StringUtils.isNotBlank(userDTO.getEmail()), Users::getEmail, userDTO.getEmail())
-                .eq(Users::getUserId, targetUserId)
-                .update();
+        boolean changed = false;
+        var wrapper = lambdaUpdate().eq(Users::getUserId, targetUserId);
+        if (StringUtils.isNotBlank(userDTO.getUsername())) {
+            wrapper.set(Users::getUsername, userDTO.getUsername());
+            changed = true;
+        }
+        if (StringUtils.isNotBlank(userDTO.getPhone())) {
+            wrapper.set(Users::getPhone, userDTO.getPhone());
+            changed = true;
+        }
+        if (StringUtils.isNotBlank(userDTO.getEmail())) {
+            wrapper.set(Users::getEmail, userDTO.getEmail());
+            changed = true;
+        }
+        if (changed) {
+            wrapper.update();
+        }
     }
 
 
