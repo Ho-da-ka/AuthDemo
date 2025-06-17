@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
 
 import com.shuzi.userservice.domain.dto.PageQueryDTO;
+import com.shuzi.userservice.domain.dto.RegisterFormDTO;
 import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.domain.vo.UserLoginVO;
@@ -18,7 +19,7 @@ public interface IUserService extends IService<Users> {
 
     UserLoginVO login(LoginFormDTO loginFormDTO);
 
-    UserLoginVO register(Users user);
+    UserLoginVO register(RegisterFormDTO user);
 
     PageResult listUsers(PageQueryDTO loginFormDTO);
 

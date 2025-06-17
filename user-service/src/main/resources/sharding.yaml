@@ -33,11 +33,11 @@ rules:
     users_database_inline:
       type: INLINE
       props:
-        algorithm-expression: ds$->{user_id % 2}
+        algorithm-expression: ds${user_id % 2}
     users_table_inline:
       type: INLINE
       props:
-        algorithm-expression: users_$->{user_id % 2}
+        algorithm-expression: users_${user_id % 2}
 
   keyGenerators:
     snowflake_key_generator:

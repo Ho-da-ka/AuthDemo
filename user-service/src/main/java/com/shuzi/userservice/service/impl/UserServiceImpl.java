@@ -9,10 +9,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.shuzi.userservice.client.PermissionService;
-import com.shuzi.userservice.constants.PermissionConstants;
 import com.shuzi.userservice.context.BaseContext;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
 import com.shuzi.userservice.domain.dto.PageQueryDTO;
+import com.shuzi.userservice.domain.dto.RegisterFormDTO;
 import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.domain.vo.UserLoginVO;
@@ -25,6 +25,7 @@ import io.micrometer.common.util.StringUtils;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.util.validation.metadata.NamedObject;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -74,6 +75,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         }
         // 5.生成TOKEN
         String token = JwtTool.generateJwt(user.getUserId(), user.getUsername());
+        BaseContext.setCurrentId(user.getUserId());
         // 6.封装VO返回
         UserLoginVO vo = new UserLoginVO();
         vo.setUserId(user.getUserId());
@@ -85,28 +87,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
     /**
      * 注册
      *
-     * @param user
+     * @param registerFormDTO
      * @return 登录VO
      */
     @OpLog("用户注册")
     @Override
     @GlobalTransactional
-    public UserLoginVO register(Users user) {
-        // 1.检查是否已存在
-        Users existUser = lambdaQuery().eq(Users::getUsername, user.getUsername()).one();
+    public UserLoginVO register(RegisterFormDTO registerFormDTO) {
+        // 1.检查是否已存在,如果存在直接返回登录信息
+        LoginFormDTO loginFormDTO = BeanUtil.copyProperties(registerFormDTO, LoginFormDTO.class);
+        Users existUser = lambdaQuery().eq(Users::getUsername, registerFormDTO.getUsername()).one();
         if (existUser != null) {
             log.info("用户已存在");
-            return login(BeanUtil.copyProperties(existUser, LoginFormDTO.class));
+            return login(loginFormDTO);
         }
         // 2.保存用户
-        LoginFormDTO loginFormDTO = BeanUtil.copyProperties(user, LoginFormDTO.class);
+        Users user = BeanUtil.copyProperties(registerFormDTO, Users.class);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setGmtCreate(LocalDateTime.now(ZoneOffset.UTC));
         save(user);
-        log.info("用户id:{}", user.getUserId());
+        log.info("注册的用户id:{}", user.getUserId());
         BaseContext.setCurrentId(user.getUserId());
         //  3.绑定角色
         permissionService.bindDefaultRole(user.getUserId());
+        // 4.登录
         return login(loginFormDTO);
     }
 
@@ -175,9 +179,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
     @Override
     @OpLog(value = "获取用户信息")
     public UserVO selectUser(String userid) {
+        // 将字符串userid转换为Long避免分片算法类型不匹配
+        if (!org.apache.commons.lang3.math.NumberUtils.isCreatable(userid)) {
+            throw new RuntimeException("用户ID格式错误");
+        }
+        Long userIdLong = Long.parseLong(userid);
         Long currentUserId = BaseContext.getCurrentId();
         String currentRole = permissionService.getUserRoleCode(currentUserId);
-        Users user = lambdaQuery().eq(Users::getUserId, userid).one();
+        Users user = lambdaQuery().eq(Users::getUserId, userIdLong).one();
 
         if (user == null) {
             throw new RuntimeException("用户不存在");
@@ -234,11 +243,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         // 角色获取与缓存
         String currentRole = permissionService.getUserRoleCode(currentUserId);
         String targetRole = permissionService.getUserRoleCode(targetUserId);
-
+        String newRole = userDTO.getUserRole();
         // 权限校验
         switch (currentRole) {
             case ROLE_SUPER_ADMIN -> {
-                String newRole = userDTO.getUserRole();
                 if (newRole.equals(ROLE_SUPER_ADMIN)) {
                     throw new RuntimeException("不能新增超级管理员");
                 }
@@ -251,14 +259,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
                 }
             }
             case ROLE_ADMIN -> {
+                if (!newRole.isEmpty()) {
+                    throw new RuntimeException("无权限修改用户权限");
+                }
                 if (targetRole.equals(ROLE_SUPER_ADMIN)) {
                     throw new RuntimeException("无权限修改超级管理员");
                 }
-                if (targetRole.equals(ROLE_ADMIN)) {
+                if (!(targetRole.equals(ROLE_ADMIN) && currentUserId.equals(targetUserId))) {
                     throw new RuntimeException("管理员不能修改其他管理员");
                 }
             }
             case ROLE_USER -> {
+                if (!newRole.isEmpty()) {
+                    throw new RuntimeException("无权限修改用户权限");
+                }
                 if (!(targetRole.equals(ROLE_USER) && currentUserId.equals(targetUserId))) {
                     throw new RuntimeException("只能修改自己的信息");
                 }
@@ -299,15 +313,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         Long currentUserId = BaseContext.getCurrentId();
         String currentRole = permissionService.getUserRoleCode(currentUserId);
         if (ROLE_SUPER_ADMIN.equals(currentRole)) {
-            lambdaUpdate().set(Users::getPassword, passwordEncoder.encode(DEFAULT_PASSWORD));
+            lambdaUpdate().set(Users::getPassword, passwordEncoder.encode(DEFAULT_PASSWORD)).update();
         }
         if (ROLE_ADMIN.equals(currentRole)) {
             lambdaUpdate().set(Users::getPassword, passwordEncoder.encode(DEFAULT_PASSWORD))
-                    .in(Users::getUserId, permissionService.listUserIdsByRole(ROLE_USER));
+                    .in(Users::getUserId, permissionService.listUserIdsByRole(ROLE_USER)).update();
         }
         if (ROLE_USER.equals(currentRole)) {
             lambdaUpdate().set(Users::getPassword, passwordEncoder.encode(DEFAULT_PASSWORD))
-                    .eq(Users::getUserId, currentUserId);
+                    .eq(Users::getUserId, currentUserId).update();
         }
         return true;
     }

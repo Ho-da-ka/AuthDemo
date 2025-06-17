@@ -1,6 +1,7 @@
 package com.shuzi.userservice.controller;
 
 
+import com.shuzi.userservice.domain.dto.RegisterFormDTO;
 import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.result.PageResult;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
@@ -34,8 +35,8 @@ public class UserController {
 
     @ApiOperation("用户注册接口")
     @PostMapping("/register")
-    public Result<UserLoginVO> register(@RequestBody @Validated Users user, HttpServletRequest request) {
-        UserLoginVO register = userService.register(user);
+    public Result<UserLoginVO> register(@RequestBody @Validated RegisterFormDTO registerFormDTO, HttpServletRequest request) {
+        UserLoginVO register = userService.register(registerFormDTO);
         return Result.success(register);
     }
 
@@ -56,7 +57,7 @@ public class UserController {
     @ApiOperation("修改用户信息接口")
     @PutMapping("/{userid}")
     public Result updateUser(@PathVariable String userid, @RequestBody UserDTO userDTO) {
-        userService.updateUser(userid,userDTO);
+        userService.updateUser(userid, userDTO);
         return Result.success();
 
     }
@@ -64,6 +65,7 @@ public class UserController {
     @ApiOperation("密码重置接口")
     @PostMapping("/reset-password")
     public Result resetPassword() {
+        boolean reset = userService.resetPassword();
         return Result.success();
     }
 
