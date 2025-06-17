@@ -52,35 +52,26 @@
 ├── permission-service    # 权限服务
 │   ├── src
 │   └── pom.xml
-├── logging-service           # 日志服务（可选，也可集成到其他服务）
+├── logging-service       # 日志服务
 │   ├── src
 │   └── pom.xml
-├── common                # 公共模块（DTO、RPC接口定义等）
-│   ├── src
+├── test                  # 用于测试
+│   ├── docker-compose.yml
 │   └── pom.xml
-├── config                # 配置文件
-│   ├── application.yml
-│   └── ...
-├── doc                   # 文档
-│   ├── api-docs.md
-│   └── architecture.md
-├── sql                   # 数据库脚本
-│   ├── schema.sql
-│   └── data.sql
 └── README.md
 ```
 
 ## 快速启动
 
 1.  **环境准备**：
-      * 安装Java、Maven、MySQL、RabbitMQ、ZooKeeper等。
+      * 安装Java、Maven、MySQL、RabbitMQ、Nacos、Seata等。
 2.  **数据库配置**：
-      * 创建数据库，并执行`sql/schema.sql`和`sql/data.sql`初始化表结构和数据。
+      * 创建数据库，并初始化表结构和数据。
       * 根据实际情况配置分库分表规则。
 3.  **服务配置**：
       * 修改各个服务的配置文件（`application.yml`等），配置数据库连接、MQ地址、注册中心地址等。
 4.  **启动服务**：
-      * 依次启动注册中心、配置中心（如果使用）、权限服务、用户服务、日志服务。
+      * 依次启动注册中心、配置中心、权限服务、用户服务、日志服务。
       * 确保所有服务注册成功并可相互通信。
 5.  **API测试**：
       * 使用Swagger或Postman等工具测试API接口。

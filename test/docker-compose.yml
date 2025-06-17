@@ -1,0 +1,126 @@
+version: "3.9"
+
+services:
+# ────────────────────── 数据库 ──────────────────────
+  mysql-ds0:
+    image: mysql:8.0
+    container_name: mysql-ds0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 284100
+      MYSQL_DATABASE: user_db_0
+      TZ: Asia/Shanghai
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/ds0/data:/var/lib/mysql
+      - ./mysql/ds0/init:/docker-entrypoint-initdb.d
+
+  mysql-ds1:
+    image: mysql:8.0
+    container_name: mysql-ds1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 284100
+      MYSQL_DATABASE: user_db_1
+      TZ: Asia/Shanghai
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql/ds1/data:/var/lib/mysql
+      - ./mysql/ds1/init:/docker-entrypoint-initdb.d
+
+  mysql-perm:
+    image: mysql:8.0
+    container_name: mysql-perm
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 284100
+      MYSQL_DATABASE: perm
+      TZ: Asia/Shanghai
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./mysql/perm:/var/lib/mysql
+      - ./mysql/perm/init:/docker-entrypoint-initdb.d
+
+  mysql-log:
+    image: mysql:8.0
+    container_name: mysql-log
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 284100
+      MYSQL_DATABASE: log
+      TZ: Asia/Shanghai
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3309:3306"
+    volumes:
+      - ./mysql/log:/var/lib/mysql
+      - ./mysql/log/init:/docker-entrypoint-initdb.d
+
+# ────────────────────── RabbitMQ ──────────────────────
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # 管理 UI
+    environment:
+      RABBITMQ_DEFAULT_USER: auth
+      RABBITMQ_DEFAULT_PASS: auth
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq
+
+# ────────────────────── Nacos ──────────────────────
+  nacos:
+    image: nacos/nacos-server:v2.3.0
+    container_name: nacos
+    restart: unless-stopped
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+      JVM_XMS: 256m
+      JVM_XMX: 256m
+      JVM_XMN: 128m
+    ports:
+      - "8848:8848"
+    volumes:
+      - ./nacos/logs:/home/nacos/logs
+
+# ────────────────────── Seata Server ──────────────────────
+  seata-server:
+    image: seataio/seata-server:2.0.0
+    container_name: seata-server
+    depends_on:
+      - nacos
+      - mysql-perm-log   # 用作 Seata 服务器存储
+    restart: unless-stopped
+    environment:
+      JVM_XMS: 512m 
+      JVM_XMX: 512m  
+      JVM_XMN: 256m
+      SEATA_IP: localhost
+      TZ: Asia/Shanghai
+    ports:
+      - "8091:8091"
+    volumes:
+      # 1. registry.conf 指向 Nacos
+      - ./seata/application.yml:/seata-server/resources/application.yml
+    
+
+networks:
+  default:
+    name: auth-demo-net
