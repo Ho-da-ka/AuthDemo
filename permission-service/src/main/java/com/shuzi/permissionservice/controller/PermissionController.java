@@ -1,5 +1,6 @@
 package com.shuzi.permissionservice.controller;
 
+import com.shuzi.commonapi.client.PermissionService;
 import com.shuzi.permissionservice.entity.UserRole;
 import com.shuzi.permissionservice.service.IUserRoleService;
 import io.swagger.annotations.Api;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/Permission")
 @RequiredArgsConstructor
-public class PermissionController {
+public class PermissionController  {
 
     private final IUserRoleService userRoleService;
 

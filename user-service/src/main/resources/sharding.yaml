@@ -2,13 +2,13 @@ dataSources:
   ds0:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://localhost:3306/user_db_0?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://localhost:3306/user_db_0?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username: root
     password: 284100
   ds1:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://localhost:3306/user_db_1?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
+    jdbcUrl: jdbc:mysql://localhost:3306/user_db_1?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
     username: root
     password: 284100
 
@@ -49,11 +49,3 @@ rules:
   providerType: Seata
 props:
   sql-show: true
-
-# ----
-# Running mode (persistence of metadata). 
-# Default is Memory, which keeps metadata in-memory only.
-# Removing the block below avoids the unsupported `File` repository.
-# ----
-# mode:
-#   type: Memory 

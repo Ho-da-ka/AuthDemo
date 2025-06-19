@@ -2,8 +2,8 @@
 spring:
   config:
     import:
-    - nacos:shared-seata.yaml # 指定要从Nacos导入的dataId
-    - nacos:shared-mq.yaml # 指定要从Nacos导入的dataId
+    - nacos:shared-seata.yaml # 从Nacos导入共享的seata配置
+    - nacos:shared-mq.yaml # 从Nacos导入共享的mq配置
   application:
     name: user-service # 微服务名称
   main:
@@ -16,7 +16,6 @@ spring:
         import-check:
           enabled: false
 
-# 由于 ShardingSphere 5.3.x 移除 Spring Boot Starter，这里改为使用 ShardingSphereDriver。
 # 详细规则放在 `classpath:sharding.yaml`，见同级目录。
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
@@ -27,6 +26,7 @@ server:
 feign:
   okhttp:
     enabled: true # 开启OKHttp连接池支持
+
 #logging:
 #  level:
 #    org.springframework: DEBUG

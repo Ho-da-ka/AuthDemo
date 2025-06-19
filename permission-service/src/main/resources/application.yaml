@@ -1,11 +1,10 @@
 spring:
   config:
     import:
-      - nacos:shared-seata.yaml # 指定要从Nacos导入的dataId
-      - nacos:shared-mq.yaml # 指定要从Nacos导入的dataId
+      - nacos:shared-seata.yaml # 从Nacos导入共享的seata配置
 
   datasource:
-    url: jdbc:mysql://localhost:3306/permission ?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/permission ?useSSL=false&serverTimezone=UTC8&allowPublicKeyRetrieval=true
     username: root
     password: 284100
     driver-class-name: com.mysql.cj.jdbc.Driver
