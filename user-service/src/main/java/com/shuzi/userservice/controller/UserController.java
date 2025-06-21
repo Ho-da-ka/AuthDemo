@@ -5,8 +5,6 @@ import com.shuzi.userservice.domain.dto.RegisterFormDTO;
 import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.result.PageResult;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
-import com.shuzi.userservice.domain.dto.PageQueryDTO;
-import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.domain.vo.UserLoginVO;
 import com.shuzi.userservice.domain.vo.UserVO;
 import com.shuzi.userservice.result.Result;
@@ -26,6 +24,7 @@ public class UserController {
 
     private final IUserService userService;
 
+
     @ApiOperation("用户登录接口")
     @PostMapping("/login")
     public Result<UserLoginVO> login(@RequestBody @Validated LoginFormDTO loginFormDTO) {
@@ -42,8 +41,9 @@ public class UserController {
 
     @ApiOperation("分页用户列表接口")
     @GetMapping()
-    public Result<PageResult> listUsers(@RequestBody @Validated PageQueryDTO pageQueryDTO) {
-        PageResult pageResult = userService.listUsers(pageQueryDTO);
+    public Result<PageResult> listUsers(@RequestParam(value = "page", defaultValue = "1") Integer page,
+                                        @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+        PageResult pageResult = userService.listUsers(page, pageSize);
         return Result.success(pageResult);
     }
 
@@ -59,7 +59,6 @@ public class UserController {
     public Result updateUser(@PathVariable String userid, @RequestBody UserDTO userDTO) {
         userService.updateUser(userid, userDTO);
         return Result.success();
-
     }
 
     @ApiOperation("密码重置接口")

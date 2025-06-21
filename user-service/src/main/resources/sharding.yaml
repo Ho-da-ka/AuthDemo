@@ -16,11 +16,7 @@ rules:
 - !SHARDING
   tables:
     users:
-      actualDataNodes: ds${0..1}.users_${0..1}
-      tableStrategy:
-        standard:
-          shardingColumn: user_id
-          shardingAlgorithmName: users_table_inline
+      actualDataNodes: ds${0..1}.users
       databaseStrategy:
         standard:
           shardingColumn: user_id
@@ -34,10 +30,6 @@ rules:
       type: INLINE
       props:
         algorithm-expression: ds${user_id % 2}
-    users_table_inline:
-      type: INLINE
-      props:
-        algorithm-expression: users_${user_id % 2}
 
   keyGenerators:
     snowflake_key_generator:
@@ -49,3 +41,4 @@ rules:
   providerType: Seata
 props:
   sql-show: true
+  sql-interceptor-enabled: true

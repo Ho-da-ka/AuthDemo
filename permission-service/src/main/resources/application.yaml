@@ -4,7 +4,7 @@ spring:
       - nacos:shared-seata.yaml # 从Nacos导入共享的seata配置
 
   datasource:
-    url: jdbc:mysql://localhost:3306/permission ?useSSL=false&serverTimezone=UTC8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/permission?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 284100
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -20,6 +20,10 @@ spring:
 
 server:
   port: 8081
+
+# Enable Seata automatic datasource proxy since permission-service uses plain JDBC
+seata:
+  enable-auto-data-source-proxy: false
 
 feign:
   okhttp:

@@ -2,11 +2,13 @@ package com.shuzi.userservice.init;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
-import com.shuzi.userservice.client.PermissionService;
+
+import com.shuzi.commonapi.client.PermissionService;
 import com.shuzi.userservice.domain.po.Users;
 import com.shuzi.userservice.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shardingsphere.transaction.api.TransactionType;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;

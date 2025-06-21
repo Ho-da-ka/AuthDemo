@@ -8,10 +8,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import com.shuzi.userservice.client.PermissionService;
+import com.shuzi.commonapi.client.PermissionService;
+import com.shuzi.commonapi.utils.JwtTool;
 import com.shuzi.userservice.context.BaseContext;
 import com.shuzi.userservice.domain.dto.LoginFormDTO;
-import com.shuzi.userservice.domain.dto.PageQueryDTO;
 import com.shuzi.userservice.domain.dto.RegisterFormDTO;
 import com.shuzi.userservice.domain.dto.UserDTO;
 import com.shuzi.userservice.domain.po.Users;
@@ -20,12 +20,10 @@ import com.shuzi.userservice.domain.vo.UserVO;
 import com.shuzi.userservice.mapper.UserMapper;
 import com.shuzi.userservice.result.PageResult;
 import com.shuzi.userservice.service.IUserService;
-import com.shuzi.userservice.utils.JwtTool;
+
 import io.micrometer.common.util.StringUtils;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jsqlparser.util.validation.metadata.NamedObject;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,7 +37,9 @@ import com.shuzi.userservice.annotation.OpLog;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.shuzi.userservice.constants.PermissionConstants.*;
+import static com.shuzi.commonapi.constants.PermissionConstants.*;
+
+import io.seata.spring.annotation.GlobalTransactional;
 
 /**
  * 用户表 服务实现类
@@ -65,6 +65,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         // 1.数据校验
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
+        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+            log.error("用户名或密码不能为空");
+            throw new RuntimeException("用户名或密码不能为空");
+        }
         // 2.根据用户名查询
         Users user = lambdaQuery().eq(Users::getUsername, username).one();
         BaseContext.setCurrentId(user.getUserId());
@@ -84,15 +88,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         return vo;
     }
 
-    /**
-     * 注册
-     *
-     * @param registerFormDTO
-     * @return 登录VO
-     */
     @OpLog("用户注册")
     @Override
-    @GlobalTransactional
+    @GlobalTransactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public UserLoginVO register(RegisterFormDTO registerFormDTO) {
         // 1.检查是否已存在,如果存在直接返回登录信息
         LoginFormDTO loginFormDTO = BeanUtil.copyProperties(registerFormDTO, LoginFormDTO.class);
@@ -108,30 +107,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         save(user);
         log.info("注册的用户id:{}", user.getUserId());
         BaseContext.setCurrentId(user.getUserId());
-        //  3.绑定角色
+        // 3. 远程绑定默认角色（Feign 已透传 XID）
         permissionService.bindDefaultRole(user.getUserId());
-        // 4.登录
+        int i=1/0;
+        // 4.注册完成后直接复用登录逻辑生成 token
         return login(loginFormDTO);
     }
+
 
     /**
      * 获取用户列表
      *
-     * @param pageQueryDTO
+     * @param page,pageSize
+     * @param pageSize
      * @return PageResult
      */
     @OpLog(value = "获取用户列表")
     @Override
-    public PageResult listUsers(PageQueryDTO pageQueryDTO) {
+    public PageResult listUsers(Integer page, Integer pageSize) {
         Long currentUserId = BaseContext.getCurrentId();
         String currentRole = permissionService.getUserRoleCode(currentUserId);
-
-        int pageNum = pageQueryDTO.getPage();
-        int pageSize = pageQueryDTO.getPageSize();
-
         // 超级管理员：直接分页查询全部
         if (ROLE_SUPER_ADMIN.equals(currentRole)) {
-            Page<Users> mpPage = new Page<>(pageNum, pageSize);
+            Page<Users> mpPage = new Page<>(page, pageSize);
             IPage<UserVO> result = page(mpPage, new QueryWrapper<>())
                     .convert(u -> {
                         UserVO vo = BeanUtil.copyProperties(u, UserVO.class);
@@ -158,7 +156,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         if (userIds.isEmpty()) {
             return new PageResult(0, java.util.Collections.emptyList());
         }
-        Page<Users> mpPage = new Page<>(pageNum, pageSize);
+        Page<Users> mpPage = new Page<>(page, pageSize);
         LambdaQueryWrapper<Users> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(Users::getUserId, userIds);
         IPage<UserVO> result = page(mpPage, wrapper)
@@ -222,16 +220,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         throw new RuntimeException("权限不足：未知角色");
     }
 
-
-    /**
-     * 更新用户信息
-     *
-     * @param userid
-     * @param userDTO
-     */
-    @GlobalTransactional
-    @Override
     @OpLog(value = "更新用户信息")
+    @Override
+    @GlobalTransactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public void updateUser(String userid, UserDTO userDTO) {
         // 输入校验
         if (!NumberUtils.isCreatable(userid)) {
@@ -251,10 +243,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
                     throw new RuntimeException("不能新增超级管理员");
                 }
                 if (ROLE_ADMIN.equals(newRole) && !ROLE_ADMIN.equals(targetRole)) {
-                    // 升级普通用户 → 管理员
+                    // 角色升降级
                     permissionService.upgradeToAdmin(targetUserId);
                 } else if (ROLE_USER.equals(newRole) && !ROLE_USER.equals(targetRole)) {
-                    // 降级管理员 → 普通用户
                     permissionService.downgradeToUser(targetUserId);
                 }
             }
@@ -299,7 +290,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
             wrapper.update();
         }
     }
-
 
     /**
      * 重置密码

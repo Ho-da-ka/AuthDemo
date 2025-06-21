@@ -1,9 +1,9 @@
 package com.shuzi.userservice.aspect;
 
 import com.alibaba.fastjson.JSON;
+import com.shuzi.commonapi.entity.OperationLog;
 import com.shuzi.userservice.annotation.OpLog;
 import com.shuzi.userservice.context.BaseContext;
-import com.shuzi.userservice.domain.po.OperationLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

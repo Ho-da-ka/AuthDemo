@@ -1,8 +1,8 @@
 package com.shuzi.userservice.interceptor;
 
+import com.shuzi.commonapi.utils.JwtTool;
 import com.shuzi.userservice.context.BaseContext;
-import com.shuzi.userservice.utils.IpUtils;
-import com.shuzi.userservice.utils.JwtTool;
+
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

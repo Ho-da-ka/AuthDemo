@@ -119,7 +119,6 @@
             </plugins>
         </pluginManagement>
     </build>
-
     <!-- 聚合的子模块 -->
     <modules>
         <module>common-api</module>

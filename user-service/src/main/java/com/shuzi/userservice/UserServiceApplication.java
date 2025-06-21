@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @MapperScan("com.shuzi.userservice.mapper")
-@EnableFeignClients(basePackages = "com.shuzi.userservice.client")
+@EnableFeignClients(basePackages = {"com.shuzi.commonapi.client"})
 public class UserServiceApplication {
 
     public static void main(String[] args) {

@@ -1,7 +1,8 @@
 package com.shuzi.userservice.interceptor;
 
+import com.shuzi.commonapi.utils.IpUtils;
 import com.shuzi.userservice.context.BaseContext;
-import com.shuzi.userservice.utils.IpUtils;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
