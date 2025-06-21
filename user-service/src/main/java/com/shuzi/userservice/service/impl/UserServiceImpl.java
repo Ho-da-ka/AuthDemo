@@ -107,9 +107,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
         save(user);
         log.info("注册的用户id:{}", user.getUserId());
         BaseContext.setCurrentId(user.getUserId());
-        // 3. 远程绑定默认角色（Feign 已透传 XID）
+        // 3. 远程绑定默认角色
         permissionService.bindDefaultRole(user.getUserId());
-        int i=1/0;
         // 4.注册完成后直接复用登录逻辑生成 token
         return login(loginFormDTO);
     }
@@ -177,7 +176,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, Users> implements I
     @Override
     @OpLog(value = "获取用户信息")
     public UserVO selectUser(String userid) {
-        // 将字符串userid转换为Long避免分片算法类型不匹配
         if (!org.apache.commons.lang3.math.NumberUtils.isCreatable(userid)) {
             throw new RuntimeException("用户ID格式错误");
         }

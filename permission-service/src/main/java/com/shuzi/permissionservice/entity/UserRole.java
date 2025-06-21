@@ -9,8 +9,8 @@ import lombok.Data;
  * 用户-角色关系实体类
  * 对应数据库中的 user_roles 表
  */
-@Data // Lombok 注解，自动生成 getter, setter, toString, equals, hashCode 方法
-@TableName("user_roles") // MyBatis-Plus 注解，指定实体类对应的数据库表名
+@Data
+@TableName("user_roles")
 public class UserRole {
 
     /**
@@ -31,6 +31,4 @@ public class UserRole {
      */
     private Integer roleId;
 
-    // 注意：数据库中定义的 UNIQUE KEY uk_user_role (user_id) 确保了每个用户只有一个角色绑定。
-    // 这在实体类中无法直接通过注解体现，需要在业务逻辑层或数据库层面进行约束。
 }

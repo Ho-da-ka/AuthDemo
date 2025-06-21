@@ -1,7 +1,9 @@
 package com.shuzi.commonapi.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
-//此类由ai生成
+/**
+ * 此类由ai辅助生成
+ */
 public class IpUtils {
     public static String getClientIP(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");

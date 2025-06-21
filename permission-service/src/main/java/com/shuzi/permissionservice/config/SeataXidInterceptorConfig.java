@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * Binds Seata XID carried by upstream HTTP header to the current thread so that
  * permission-service can participate in the same global transaction.
+ * 此类由ai辅助生成
  */
 @Configuration
 public class SeataXidInterceptorConfig implements WebMvcConfigurer {

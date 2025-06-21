@@ -12,7 +12,7 @@ public class FeignConfig {
     }
 
     /**
-     * Propagate Seata XID to downstream services so that they can join the same global transaction.
+     * Seata Feign拦截器
      */
     @Bean
     public feign.RequestInterceptor seataFeignRequestInterceptor() {

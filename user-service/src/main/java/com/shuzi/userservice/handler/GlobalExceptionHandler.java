@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
         }
 
         Result<?> body = Result.error(root.getMessage());
-        // 统一返回 400 Bad Request，可按需在此处做异常类型判断细分状态码
+        // 统一返回 400 Bad Request
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 }

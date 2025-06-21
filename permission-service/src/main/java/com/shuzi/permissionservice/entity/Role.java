@@ -8,8 +8,8 @@ import lombok.Data;
  * 角色实体类
  * 对应数据库中的 roles 表
  */
-@Data // Lombok 注解，自动生成 getter, setter, toString, equals, hashCode 方法
-@TableName("roles") // MyBatis-Plus 注解，指定实体类对应的数据库表名
+@Data
+@TableName("roles")
 public class Role {
 
     /**
@@ -18,7 +18,7 @@ public class Role {
      * 2: 普通用户 (user)
      * 3: 管理员 (admin)
      */
-    @TableId // MyBatis-Plus 注解，标记为主键
+    @TableId
     private Integer roleId;
 
     /**

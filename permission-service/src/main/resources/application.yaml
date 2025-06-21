@@ -10,7 +10,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   application:
-    name: permission-service # 您的微服务名称
+    name: permission-service
 
   cloud:
     nacos:
@@ -21,9 +21,9 @@ spring:
 server:
   port: 8081
 
-# Enable Seata automatic datasource proxy since permission-service uses plain JDBC
+
 seata:
-  enable-auto-data-source-proxy: false
+  enable-auto-data-source-proxy: true
 
 feign:
   okhttp:

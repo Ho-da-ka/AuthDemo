@@ -1,7 +1,8 @@
 package com.shuzi.loggingservice.listener;
 
 
-import com.shuzi.loggingservice.entity.OperationLog;
+
+import com.shuzi.commonapi.entity.OperationLog;
 import com.shuzi.loggingservice.mapper.OperationLogMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

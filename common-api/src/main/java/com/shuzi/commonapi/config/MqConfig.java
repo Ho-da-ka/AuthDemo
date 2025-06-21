@@ -1,4 +1,4 @@
-package com.shuzi.userservice.config;
+package com.shuzi.commonapi.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

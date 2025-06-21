@@ -13,32 +13,42 @@ dataSources:
     password: 284100
 
 rules:
-- !SHARDING
-  tables:
-    users:
-      actualDataNodes: ds${0..1}.users
-      databaseStrategy:
-        standard:
-          shardingColumn: user_id
-          shardingAlgorithmName: users_database_inline
-      keyGenerateStrategy:
-        column: user_id
-        keyGeneratorName: snowflake_key_generator
+  - !SHARDING
+    tables:
+      # 用户表：2 库 * 2 表  （ds0.users_0 ~ ds1.users_1）
+      users:
+        actualDataNodes: ds${0..1}.users_${0..1}
+        databaseStrategy: # 先分库
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: users_database_inline
+        tableStrategy: # 再分表
+          standard:
+            shardingColumn: user_id
+            shardingAlgorithmName: users_table_inline
+        keyGenerateStrategy:
+          column: user_id
+          keyGeneratorName: snowflake_key_generator
 
-  shardingAlgorithms:
-    users_database_inline:
-      type: INLINE
-      props:
-        algorithm-expression: ds${user_id % 2}
+    shardingAlgorithms:
+      users_database_inline:
+        type: INLINE
+        props:
+          algorithm-expression: ds${user_id % 2}
 
-  keyGenerators:
-    snowflake_key_generator:
-      type: SNOWFLAKE
-      props:
-        worker-id: 123
-- !TRANSACTION
-  defaultType: BASE
-  providerType: Seata
+      users_table_inline:
+        type: INLINE
+        props:
+          algorithm-expression: users_${user_id % 2}
+
+    keyGenerators:
+      snowflake_key_generator:
+        type: SNOWFLAKE
+        props:
+          worker-id: 123
+  - !TRANSACTION
+    defaultType: BASE
+    providerType: Seata
 props:
   sql-show: true
   sql-interceptor-enabled: true
